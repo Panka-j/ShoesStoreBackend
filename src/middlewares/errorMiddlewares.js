@@ -1,5 +1,5 @@
 import logger from "../common/utils/logger.js";
-import ServerError from "../common/errors/serverError.js";
+import ServerError from "../common/errors/ServerError.js";
 
 export const errorHandler = (err, req, res, next) => {
   let statusCode = 500;

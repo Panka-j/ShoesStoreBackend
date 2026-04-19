@@ -1,4 +1,4 @@
-import ServerError from "../common/errors/serverError.js";
+import ServerError from "../common/errors/ServerError.js";
 import wrapAsync from "../common/utils/wrapAsync.js";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";

@@ -8,6 +8,12 @@ import connectDB from "./src/common/db/connection.js";
 import logger from "./src/common/utils/logger.js";
 
 import imageRouter from "./src/routes/imageRoutes.js";
+import authRouter from "./src/routes/authRoutes.js";
+import userRouter from "./src/routes/userRoutes.js";
+import categoryRouter from "./src/routes/categoryRoutes.js";
+import productRouter from "./src/routes/productRoutes.js";
+import orderRouter from "./src/routes/orderRoutes.js";
+import reviewRouter from "./src/routes/reviewRoutes.js";
 
 import { errorHandler } from "./src/middlewares/errorMiddlewares.js";
 
@@ -45,6 +51,12 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 app.use("/api/v1/image", imageRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/categories", categoryRouter);
+app.use("/api/v1/products", productRouter);
+app.use("/api/v1/orders", orderRouter);
+app.use("/api/v1/reviews", reviewRouter);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ message: `Backend healthy at port => ${port}` });

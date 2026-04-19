@@ -1,4 +1,4 @@
-import ServerError from "../common/errors/serverError.js";
+import ServerError from "../common/errors/ServerError.js";
 import logger from "../common/utils/logger.js";
 
 export const validateRequest = (schema) => {

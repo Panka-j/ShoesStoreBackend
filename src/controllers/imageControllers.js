@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Image from "../models/imageModel.js";
 import logger from "../common/utils/logger.js";
-import ServerError from "../common/errors/serverError.js";
+import ServerError from "../common/errors/ServerError.js";
 
 export const getImageById = async (req, res) => {
   const i_id = req.params.i_id;
