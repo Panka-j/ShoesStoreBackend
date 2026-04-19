@@ -8,7 +8,10 @@ import {
 } from "../controllers/authControllers.js";
 import { verifyAccessJWT } from "../middlewares/authMiddlewares.js";
 import { validateRequest } from "../middlewares/validationMiddlewares.js";
-import { registerSchema, loginSchema } from "../validators/authValidators.js";
+import {
+  registerSchema,
+  loginSchema,
+} from "../common/utils/joiValidationSchemas.js";
 
 const router = Router();
 

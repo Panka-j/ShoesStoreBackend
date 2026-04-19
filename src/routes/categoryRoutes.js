@@ -12,7 +12,7 @@ import { validateRequest } from "../middlewares/validationMiddlewares.js";
 import {
   createCategorySchema,
   updateCategorySchema,
-} from "../validators/categoryValidators.js";
+} from "../common/utils/joiValidationSchemas.js";
 
 const router = Router();
 

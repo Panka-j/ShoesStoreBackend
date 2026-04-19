@@ -17,8 +17,8 @@ import { validateRequest } from "../middlewares/validationMiddlewares.js";
 import {
   placeOrderSchema,
   cancelOrderSchema,
-  updateStatusSchema,
-} from "../validators/orderValidators.js";
+  updateOrderStatusSchema,
+} from "../common/utils/joiValidationSchemas.js";
 
 const router = Router();
 
@@ -62,7 +62,7 @@ router.patch(
   "/seller/:orderId/status",
   verifyAccessJWT,
   authorizeRoles("seller"),
-  validateRequest(updateStatusSchema),
+  validateRequest(updateOrderStatusSchema),
   updateOrderStatus
 );
 

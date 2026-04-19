@@ -21,7 +21,7 @@ import {
   changePasswordSchema,
   adminUpdateUserSchema,
   changeRoleSchema,
-} from "../validators/userValidators.js";
+} from "../common/utils/joiValidationSchemas.js";
 import { upload } from "../middlewares/multerMiddleware.js";
 
 const router = Router();

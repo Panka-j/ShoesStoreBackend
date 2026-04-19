@@ -13,7 +13,7 @@ import { validateRequest } from "../middlewares/validationMiddlewares.js";
 import {
   createProductSchema,
   updateProductSchema,
-} from "../validators/productValidators.js";
+} from "../common/utils/joiValidationSchemas.js";
 import { upload } from "../middlewares/multerMiddleware.js";
 
 const router = Router();
@@ -36,6 +36,7 @@ router.post(
   verifyAccessJWT,
   authorizeRoles("seller"),
   upload.array("images", 10),
+  validateRequest(createProductSchema),
   createProduct
 );
 router.patch(
@@ -43,6 +44,7 @@ router.patch(
   verifyAccessJWT,
   authorizeRoles("seller", "admin"),
   upload.array("images", 10),
+  validateRequest(updateProductSchema),
   updateProduct
 );
 router.delete(
