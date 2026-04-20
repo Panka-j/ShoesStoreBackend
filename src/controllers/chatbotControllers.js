@@ -324,12 +324,10 @@ export const handleMessage = async (req, res) => {
     const { message, sessionId } = req.body;
 
     if (!message || !sessionId) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "message and sessionId are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "message and sessionId are required",
+      });
     }
 
     // Accept token from Authorization header OR cookie (frontend uses cookie-based auth)
