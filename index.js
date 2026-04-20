@@ -14,6 +14,7 @@ import categoryRouter from "./src/routes/categoryRoutes.js";
 import productRouter from "./src/routes/productRoutes.js";
 import orderRouter from "./src/routes/orderRoutes.js";
 import reviewRouter from "./src/routes/reviewRoutes.js";
+import chatbotRouter from "./src/routes/chatbotRoutes.js";
 
 import { errorHandler } from "./src/middlewares/errorMiddlewares.js";
 
@@ -57,6 +58,7 @@ app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/products", productRouter);
 app.use("/api/v1/orders", orderRouter);
 app.use("/api/v1/reviews", reviewRouter);
+app.use("/api/v1/chatbot", chatbotRouter);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ message: `Backend healthy at port => ${port}` });

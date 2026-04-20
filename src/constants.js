@@ -1,4 +1,4 @@
-export const DB_NAME = "CrossCanals";
+export const DB_NAME = "ShoesStore";
 
 export const cookieOptions = {
   httpOnly: true,
@@ -6,6 +6,6 @@ export const cookieOptions = {
   sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
 };
 
-export const articleSequenceBannerSingletonId = "CrossCanalsArticleIdString";
+export const articleSequenceBannerSingletonId = "ShoesStoreArticleIdString";
 
-export const companyGmail = "crosscanals@gmail.com";
+export const companyGmail = "jcodestudy@gmail.com";
