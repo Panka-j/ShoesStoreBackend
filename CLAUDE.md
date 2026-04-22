@@ -85,12 +85,14 @@ Use `res.status(code).json(new ServerResponse(code, data, message))`.
 
 **Agent loop (`MAX_STEPS = 3`):**
 Each iteration calls the LLM and expects this structured output:
+
 ```
 Thought: [reasoning]
 Action: [tool_name or "none"]
 Action Input: {"key": "value"}
 Final Answer: [reply — only when Action is "none"]
 ```
+
 - `parseAgentStep(raw)` extracts the four fields via regex
 - `extractJSON(inputBlock)` parses the Action Input safely (handles surrounding text)
 - If `Action != "none"`: call `executeTool(name, args, token)`, append `Observation:` to messages, continue loop
@@ -107,6 +109,7 @@ Session history stored in-memory per `sessionId` (max 12 messages). Auth token f
 ## Environment Variables
 
 Required in `.env`:
+
 ```
 PORT
 MONGODB_URL

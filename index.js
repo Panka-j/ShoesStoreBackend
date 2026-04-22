@@ -30,6 +30,7 @@ app.set("trust proxy", 1);
 if (!isProd) {
   app.use(
     morgan(":method :url :status :res[content-length] - :response-time ms", {
+      skip: (req) => req.method === "OPTIONS",
       stream: { write: (msg) => logger.http(msg.trim()) },
     })
   );
