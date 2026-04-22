@@ -1,12 +1,10 @@
 import axios from "axios";
 
-const BASE_URL =
-  process.env.API_BASE_URL ||
-  `http://localhost:${process.env.PORT || 8000}/api/v1`;
-
 const apiClient = (token) =>
   axios.create({
-    baseURL: BASE_URL,
+    baseURL:
+      process.env.API_BASE_URL ||
+      `http://localhost:${process.env.PORT || 8000}/api/v1`,
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     timeout: 8000,
   });
@@ -116,6 +114,11 @@ export const executeTool = async (toolName, args, token) => {
     }
   } catch (error) {
     const status = error.response?.status;
+    if (!status) {
+      console.error(
+        `[ToolExecutor] ${toolName} network error — code: ${error.code}, message: "${error.message}"`
+      );
+    }
     if (status === 401) return { success: false, error: "SESSION_EXPIRED" };
     if (status === 403) return { success: false, error: "FORBIDDEN" };
     if (status === 404) return { success: false, error: "NOT_FOUND" };

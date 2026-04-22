@@ -9,10 +9,6 @@ import {
   clearSession,
 } from "../services/session.service.js";
 
-const BASE_URL =
-  process.env.API_BASE_URL ||
-  `http://localhost:${process.env.PORT || 8000}/api/v1`;
-
 const MAX_STEPS = 3;
 
 // ─── System Prompt ────────────────────────────────────────────────────────────
@@ -175,6 +171,10 @@ export const handleMessage = async (req, res) => {
       req.headers.authorization?.replace("Bearer ", "") ||
       req.cookies?.accessToken ||
       null;
+
+    const BASE_URL =
+      process.env.API_BASE_URL ||
+      `http://localhost:${process.env.PORT || 8000}/api/v1`;
 
     // Identify user
     let userInfo = {
