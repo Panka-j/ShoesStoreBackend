@@ -14,11 +14,11 @@ const groq = () => {
   return _groq;
 };
 
-export const chat = async (messages, maxTokens = 400) => {
+export const chat = async (messages, maxTokens = 400, temperature = 0.7) => {
   const response = await groq().chat.completions.create({
     model: MODEL,
     messages,
-    temperature: 0.7,
+    temperature,
     max_tokens: maxTokens,
     top_p: 0.9,
   });

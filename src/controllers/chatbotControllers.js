@@ -311,12 +311,52 @@ const buildPrompt = ({
 
 // ─── Language Detection ───────────────────────────────────────────────────────
 const detectLanguage = (text) => {
-  const hindiChars = (text.match(/[\u0900-\u097F]/g) || []).length;
+  const hindiChars = (text.match(/[ऀ-ॿ]/g) || []).length;
   const totalChars = text.replace(/\s/g, "").length;
   if (hindiChars === 0) return "English";
   if (hindiChars / totalChars > 0.5) return "Hindi";
   return "Hinglish";
 };
+
+// ─── extractJSON ──────────────────────────────────────────────────────────────
+// Safely extracts first JSON object from text that may contain prose around it
+function extractJSON(text) {
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) return null;
+  try {
+    return JSON.parse(match[0]);
+  } catch {
+    return null;
+  }
+}
+
+// ─── Route Decision ───────────────────────────────────────────────────────────
+// Asks LLM whether a tool call is needed. Returns "tool" | "chat".
+async function decideRoute(message, recentHistory) {
+  const historyText =
+    recentHistory.length > 0
+      ? recentHistory
+          .slice(-4)
+          .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
+          .join("\n")
+      : "None";
+
+  const routingPrompt = `You are a routing agent for a shoe store chatbot.
+Decide if the user message requires calling a real-time tool (fetching orders, products, reviews, profile, or taking an action) OR can be answered with a conversational/knowledge-base reply.
+
+Recent conversation:
+${historyText}
+
+User message: "${message}"
+
+Respond with ONLY one of these two JSON objects — nothing else:
+{"type":"tool"}
+{"type":"chat"}`;
+
+  const raw = await chat([{ role: "user", content: routingPrompt }], 20, 0.2);
+  const parsed = extractJSON(raw);
+  return parsed?.type === "tool" ? "tool" : "chat";
+}
 
 // ─── Main Chat Handler ────────────────────────────────────────────────────────
 export const handleMessage = async (req, res) => {
@@ -330,7 +370,6 @@ export const handleMessage = async (req, res) => {
       });
     }
 
-    // Accept token from Authorization header OR cookie (frontend uses cookie-based auth)
     const token =
       req.headers.authorization?.replace("Bearer ", "") ||
       req.cookies?.accessToken ||
@@ -355,14 +394,16 @@ export const handleMessage = async (req, res) => {
       }
     }
 
-    // Run sentiment detection, RAG, and language detection in parallel
-    const [sentiment, retrievedContext, detectedLanguage] = await Promise.all([
-      detectSentiment(message),
-      Promise.resolve(ragSearch(message)),
-      Promise.resolve(detectLanguage(message)),
-    ]);
-
+    // Run sentiment detection, RAG, language detection, and route decision in parallel
     const history = getHistory(sessionId);
+    const [sentiment, retrievedContext, detectedLanguage, routeDecision] =
+      await Promise.all([
+        detectSentiment(message),
+        ragSearch(message),
+        Promise.resolve(detectLanguage(message)),
+        decideRoute(message, history),
+      ]);
+
     const formattedHistory = formatHistory(history);
 
     const systemPrompt = buildPrompt({
@@ -375,23 +416,54 @@ export const handleMessage = async (req, res) => {
       userMessage: message,
     });
 
-    const messages = [
+    const baseMessages = [
       { role: "system", content: systemPrompt },
       ...history,
       { role: "user", content: message },
     ];
 
-    // First LLM call — may return plain reply or JSON tool call
-    let rawReply = await chat(messages, 400);
-
-    let finalReply = rawReply;
+    let finalReply;
     let toolUsed = null;
     let apiResult = null;
 
-    try {
-      const parsed = JSON.parse(rawReply);
+    if (routeDecision === "chat") {
+      // ── Chat path ────────────────────────────────────────────────────────
+      finalReply = await chat(baseMessages, 400, 0.7);
+    } else {
+      // ── Tool path ────────────────────────────────────────────────────────
 
-      if (parsed.tool) {
+      // Step 1: Generate tool JSON at low temperature
+      const toolMessages = [
+        ...baseMessages,
+        {
+          role: "user",
+          content:
+            "Respond ONLY with the tool JSON object. No surrounding text, no explanation.",
+        },
+      ];
+      const rawToolReply = await chat(toolMessages, 150, 0.2);
+      let parsed = extractJSON(rawToolReply);
+
+      // Step 2: Retry once if response is invalid or missing .tool
+      if (!parsed?.tool) {
+        const retryMessages = [
+          ...toolMessages,
+          { role: "assistant", content: rawToolReply },
+          {
+            role: "user",
+            content:
+              'Invalid response. Return ONLY valid JSON in this exact format: {"tool": "TOOL_NAME", "args": {...}}',
+          },
+        ];
+        const retryReply = await chat(retryMessages, 150, 0.1);
+        parsed = extractJSON(retryReply);
+      }
+
+      if (!parsed?.tool) {
+        // Both attempts failed — fall back to a safe conversational reply
+        finalReply = await chat(baseMessages, 400, 0.7);
+      } else {
+        // Step 3: Execute the tool
         toolUsed = parsed.tool;
         const toolResult = await executeTool(
           parsed.tool,
@@ -400,7 +472,7 @@ export const handleMessage = async (req, res) => {
         );
         apiResult = toolResult;
 
-        // Second LLM call with real API data injected
+        // Step 4: Final reply with real API data injected
         const systemPromptWithData = buildPrompt({
           userInfo,
           sentiment,
@@ -411,7 +483,7 @@ export const handleMessage = async (req, res) => {
           userMessage: message,
         });
 
-        const messages2 = [
+        const finalMessages = [
           { role: "system", content: systemPromptWithData },
           ...history,
           { role: "user", content: message },
@@ -426,11 +498,8 @@ export const handleMessage = async (req, res) => {
           },
         ];
 
-        finalReply = await chat(messages2, 500);
+        finalReply = await chat(finalMessages, 500, 0.7);
       }
-    } catch {
-      // Not JSON — direct conversational reply, use as-is
-      finalReply = rawReply;
     }
 
     appendMessage(sessionId, "user", message);
