@@ -95,7 +95,6 @@ dist
 # vuepress build output
 .vuepress/dist
 
-CLAUDE.md
 
 # Serverless directories
 .serverless/
