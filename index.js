@@ -37,11 +37,7 @@ if (!isProd) {
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      process.env.CORS_ORIGIN,
-      process.env.CORS_ORIGIN_RENDER,
-    ],
+    origin: ["http://localhost:5173", process.env.CORS_ORIGIN],
     credentials: true,
   })
 );

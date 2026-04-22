@@ -1,15 +1,30 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { embed } from "./embedding.service.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const KB_DIR = path.join(__dirname, "../../knowledge-base");
 
-let knowledgeBase = [];
+let chunks = []; // { source, text, vector }
+let initialized = false;
+let initPromise = null;
 
-export const loadKnowledgeBase = () => {
+function cosineSimilarity(a, b) {
+  let dot = 0,
+    normA = 0,
+    normB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+async function init() {
   const files = fs.readdirSync(KB_DIR).filter((f) => f.endsWith(".txt"));
-  knowledgeBase = files.flatMap((file) => {
+  const rawChunks = files.flatMap((file) => {
     const content = fs.readFileSync(path.join(KB_DIR, file), "utf-8");
     return content
       .split("\n\n")
@@ -17,36 +32,44 @@ export const loadKnowledgeBase = () => {
       .map((chunk) => ({ source: file, text: chunk.trim() }));
   });
 
-  console.log(
-    `[RAG] Loaded ${knowledgeBase.length} chunks from ${files.length} files`
+  chunks = await Promise.all(
+    rawChunks.map(async (chunk) => ({
+      ...chunk,
+      vector: await embed(chunk.text),
+    }))
   );
+
+  console.log(
+    `[RAG] Indexed ${chunks.length} chunks from ${files.length} files`
+  );
+  initialized = true;
+}
+
+export const loadKnowledgeBase = () => {
+  if (!initPromise) {
+    initPromise = init();
+  }
+  return initPromise;
 };
 
+// Kick off indexing at module load (same as before)
 loadKnowledgeBase();
 
-export const search = (query) => {
-  if (!query || knowledgeBase.length === 0) return "";
+export const search = async (query) => {
+  if (!query) return "";
 
-  const queryWords = query
-    .toLowerCase()
-    .split(/\W+/)
-    .filter((w) => w.length > 2);
+  if (!initialized) await initPromise;
+  if (chunks.length === 0) return "";
 
-  const scored = knowledgeBase.map((chunk) => {
-    const text = chunk.text.toLowerCase();
-    const score = queryWords.reduce(
-      (acc, word) => acc + (text.includes(word) ? 1 : 0),
-      0
-    );
-    return { ...chunk, score };
-  });
+  const queryVector = await embed(query);
 
-  const topChunks = scored
-    .filter((c) => c.score > 0)
+  const topChunks = chunks
+    .map((chunk) => ({
+      ...chunk,
+      score: cosineSimilarity(queryVector, chunk.vector),
+    }))
     .sort((a, b) => b.score - a.score)
     .slice(0, 3);
-
-  if (topChunks.length === 0) return "";
 
   return topChunks
     .map((c) => `[Source: ${c.source}]\n${c.text}`)
