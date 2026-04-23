@@ -266,6 +266,45 @@ export const handleMessage = async (req, res) => {
       });
     }
 
+    // Extract structured product data for frontend card rendering
+    let suggestedProducts = null;
+    if (apiResult?.success) {
+      if (toolUsed === "search_products" && apiResult.data?.items?.length) {
+        suggestedProducts = apiResult.data.items.map(
+          ({
+            _id,
+            name,
+            slug,
+            basePrice,
+            images,
+            averageRating,
+            reviewCount,
+          }) => ({
+            _id,
+            name,
+            slug,
+            basePrice,
+            images,
+            averageRating,
+            reviewCount,
+          })
+        );
+      } else if (toolUsed === "get_product" && apiResult.data) {
+        const {
+          _id,
+          name,
+          slug,
+          basePrice,
+          images,
+          averageRating,
+          reviewCount,
+        } = apiResult.data;
+        suggestedProducts = [
+          { _id, name, slug, basePrice, images, averageRating, reviewCount },
+        ];
+      }
+    }
+
     // Safety fallback — should only trigger if loop exhausted without Final Answer
     if (!finalReply) {
       finalReply =
@@ -283,6 +322,7 @@ export const handleMessage = async (req, res) => {
         language: detectedLanguage,
         tool_used: toolUsed,
         api_data: apiResult,
+        suggested_products: suggestedProducts,
         sources: retrievedContext
           ? retrievedContext.substring(0, 150) + "..."
           : null,
