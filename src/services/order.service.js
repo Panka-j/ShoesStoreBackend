@@ -2,6 +2,73 @@ import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import ServerError from "../common/errors/ServerError.js";
 
+// ─── Delivery estimation ──────────────────────────────────────────────────────
+
+const addBusinessDays = (fromDate, days) => {
+  const date = new Date(fromDate);
+  let added = 0;
+  while (added < days) {
+    date.setDate(date.getDate() + 1);
+    const dow = date.getDay();
+    if (dow !== 0 && dow !== 6) added++;
+  }
+  return date;
+};
+
+const statusDate = (history, targetStatus) =>
+  history?.find((h) => h.status === targetStatus)?.changedAt ?? null;
+
+const fmt = (date) =>
+  new Date(date).toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Asia/Kolkata",
+  });
+
+const estimateDelivery = (order) => {
+  const { status, statusHistory = [], createdAt } = order;
+
+  if (status === "cancelled") return null;
+
+  if (status === "delivered") {
+    const d = statusDate(statusHistory, "delivered");
+    return d ? `Delivered on ${fmt(d)}` : "Delivered";
+  }
+
+  if (status === "out_for_delivery") {
+    return `Out for delivery today — ${fmt(new Date())}`;
+  }
+
+  // Anchor to the most meaningful status date and add a range of business days
+  let ref,
+    [dMin, dMax] = [0, 0];
+  if (status === "shipped") {
+    ref = statusDate(statusHistory, "shipped") ?? createdAt;
+    [dMin, dMax] = [3, 5];
+  } else if (status === "processing") {
+    ref = statusDate(statusHistory, "processing") ?? createdAt;
+    [dMin, dMax] = [4, 7];
+  } else if (status === "confirmed") {
+    ref = statusDate(statusHistory, "confirmed") ?? createdAt;
+    [dMin, dMax] = [6, 9];
+  } else {
+    ref = createdAt;
+    [dMin, dMax] = [8, 12];
+  }
+
+  return `${fmt(addBusinessDays(ref, dMin))} to ${fmt(addBusinessDays(ref, dMax))}`;
+};
+
+const withDeliveryEstimate = (order) => {
+  const obj = order.toObject ? order.toObject() : order;
+  obj.estimatedDelivery = estimateDelivery(obj);
+  return obj;
+};
+
+// ─── Seller transitions ───────────────────────────────────────────────────────
+
 const SELLER_TRANSITIONS = {
   pending: ["confirmed", "cancelled"],
   confirmed: ["processing", "cancelled"],
@@ -90,7 +157,7 @@ export const listMyOrders = async (
   ]);
 
   return {
-    items,
+    items: items.map(withDeliveryEstimate),
     total,
     page: pg,
     limit: lim,
@@ -103,7 +170,7 @@ export const getMyOrder = async (userId, orderId) => {
     .populate("product", "name brand images basePrice")
     .populate("seller", "firstName lastName email");
   if (!order) throw new ServerError(404, "Order not found.");
-  return order;
+  return withDeliveryEstimate(order);
 };
 
 export const cancelOrder = async (userId, orderId, cancelReason = "") => {
