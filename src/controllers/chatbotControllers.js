@@ -1,4 +1,4 @@
-import axios from "axios";
+import jwt from "jsonwebtoken";
 import { chat } from "../services/groq.service.js";
 import { detectSentiment } from "../services/sentiment.service.js";
 import { search as ragSearch } from "../services/rag.service.js";
@@ -8,6 +8,7 @@ import {
   appendMessage,
   clearSession,
 } from "../services/session.service.js";
+import User from "../models/userModel.js";
 
 const MAX_STEPS = 3;
 
@@ -172,28 +173,26 @@ export const handleMessage = async (req, res) => {
       req.cookies?.accessToken ||
       null;
 
-    const BASE_URL =
-      process.env.API_BASE_URL ||
-      `http://localhost:${process.env.PORT || 8000}/api/v1`;
-
-    // Identify user
-    let userInfo = {
-      firstName: "there",
-      role: "buyer",
-      _id: null,
-      address: null,
-    };
+    // Resolve user directly — no HTTP round-trip
+    let user = null;
     if (token) {
       try {
-        const { data } = await axios.get(`${BASE_URL}/auth/get-me`, {
-          headers: { Authorization: `Bearer ${token}` },
-          timeout: 5000,
-        });
-        if (data?.data) userInfo = data.data;
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        const found = await User.findById(decoded._id);
+        if (found && found.isUserVerified && !found.isBlocked) user = found;
       } catch {
         // Invalid or expired token — continue as guest
       }
     }
+
+    const userInfo = user
+      ? {
+          firstName: user.firstName,
+          role: user.role,
+          _id: user._id,
+          address: user.address,
+        }
+      : { firstName: "there", role: "buyer", _id: null, address: null };
 
     // Parallel: sentiment, RAG, language detection
     const history = getHistory(sessionId);
@@ -252,7 +251,7 @@ export const handleMessage = async (req, res) => {
       const result = await executeTool(
         parsed.action,
         parsed.actionInput || {},
-        token
+        user
       );
       toolUsed = parsed.action;
       apiResult = result;
