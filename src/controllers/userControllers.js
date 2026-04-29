@@ -103,7 +103,13 @@ export const getMyProfile = wrapAsync(async (req, res) => {
 });
 
 export const updateMyProfile = wrapAsync(async (req, res) => {
-  const allowedFields = ["firstName", "lastName", "phone", "address"];
+  const allowedFields = [
+    "firstName",
+    "lastName",
+    "phone",
+    "address",
+    "shoeSizes",
+  ];
   const updates = {};
   for (const key of allowedFields) {
     if (req.body[key] !== undefined) updates[key] = req.body[key];

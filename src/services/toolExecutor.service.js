@@ -1,5 +1,11 @@
 import ServerError from "../common/errors/ServerError.js";
-import { listMyOrders, getMyOrder, cancelOrder } from "./order.service.js";
+import {
+  listMyOrders,
+  getMyOrder,
+  cancelOrder,
+  placeOrder,
+} from "./order.service.js";
+import User from "../models/userModel.js";
 import { listProducts, getProduct } from "./product.service.js";
 import {
   getProductReviews,
@@ -47,6 +53,31 @@ export const executeTool = async (toolName, args, user) => {
           args.order_id,
           args.cancel_reason
         );
+        return { success: true, data };
+      }
+
+      case "place_order": {
+        requireBuyer(user);
+        if (!args.product_id)
+          return {
+            success: false,
+            error: "I need a product ID to place the order.",
+          };
+        if (!args.size)
+          return {
+            success: false,
+            error: "I need the shoe size to place the order.",
+          };
+        if (!args.quantity || args.quantity < 1)
+          return {
+            success: false,
+            error: "I need a valid quantity (at least 1).",
+          };
+        const data = await placeOrder(user, {
+          productId: args.product_id,
+          size: args.size,
+          quantity: args.quantity,
+        });
         return { success: true, data };
       }
 
@@ -113,6 +144,24 @@ export const executeTool = async (toolName, args, user) => {
       case "get_my_profile": {
         requireUser(user);
         return { success: true, data: user };
+      }
+
+      case "set_shoe_size": {
+        requireBuyer(user);
+        if (!args.category)
+          return {
+            success: false,
+            error: "I need a category name to save your size.",
+          };
+        if (!args.size || args.size < 1 || args.size > 60)
+          return { success: false, error: "I need a valid shoe size (1–60)." };
+        await User.findByIdAndUpdate(user._id, {
+          $set: { [`shoeSizes.${args.category}`]: Math.round(args.size) },
+        });
+        return {
+          success: true,
+          data: { category: args.category, size: Math.round(args.size) },
+        };
       }
 
       default:

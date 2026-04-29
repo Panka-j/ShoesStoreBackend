@@ -145,6 +145,9 @@ export const updateProfileSchema = Joi.object({
     "string.max": "Phone cannot exceed 20 characters.",
   }),
   address: addressSchema,
+  shoeSizes: Joi.object()
+    .pattern(Joi.string().trim(), Joi.number().integer().min(1).max(60))
+    .messages({ "object.base": "Shoe sizes must be an object." }),
 });
 
 export const changePasswordSchema = Joi.object({

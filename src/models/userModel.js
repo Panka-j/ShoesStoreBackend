@@ -50,6 +50,11 @@ const userSchema = new mongoose.Schema(
       maxlength: [20, "Phone must be at most 20 characters"],
     },
     address: addressSchema,
+    shoeSizes: {
+      type: Map,
+      of: Number,
+      default: {},
+    },
     avatar: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Image",
