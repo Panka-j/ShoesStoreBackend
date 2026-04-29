@@ -88,6 +88,10 @@ STYLE
 - Only end with a question when genuinely needed — never chain questions across turns
 - angry → Yaar, that's genuinely frustrating and I'm really sorry about this.
 - happy → match energy
+- LANGUAGE: always reply in the user's detected language ({detected_language})
+  English → reply fully in English
+  Hindi → reply fully in Hindi (Devanagari script)
+  Hinglish → mix Hindi words naturally into English sentences
 
 FACTS
 - Currency ₹
@@ -193,9 +197,17 @@ const buildPrompt = ({
 const detectLanguage = (text) => {
   const hindiChars = (text.match(/[ऀ-ॿ]/g) || []).length;
   const totalChars = text.replace(/\s/g, "").length;
-  if (hindiChars === 0) return "English";
+  if (totalChars === 0) return "English";
   if (hindiChars / totalChars > 0.5) return "Hindi";
-  return "Hinglish";
+  if (hindiChars > 0) return "Hinglish";
+
+  // Detect Roman-script Hinglish by word frequency
+  const words = text.toLowerCase().match(/[a-z]+/g) || [];
+  const hinglishCount = words.filter((w) => HINGLISH_WORDS.has(w)).length;
+  if (words.length > 0 && hinglishCount / words.length >= 0.2)
+    return "Hinglish";
+
+  return "English";
 };
 
 // ─── extractJSON ──────────────────────────────────────────────────────────────
@@ -433,3 +445,103 @@ export const clearUserSession = (req, res) => {
   if (sessionId) clearSession(sessionId);
   return res.status(200).json({ success: true, message: "Session cleared." });
 };
+
+// Common Hindi/Hinglish words written in Roman script
+const HINGLISH_WORDS = new Set([
+  "kya",
+  "hai",
+  "hain",
+  "kahan",
+  "mere",
+  "mera",
+  "meri",
+  "aap",
+  "tum",
+  "main",
+  "mujhe",
+  "yaar",
+  "bhai",
+  "nahi",
+  "nhi",
+  "accha",
+  "achha",
+  "theek",
+  "hoga",
+  "chahiye",
+  "sahi",
+  "kal",
+  "aaj",
+  "agar",
+  "toh",
+  "lekin",
+  "sirf",
+  "bahut",
+  "bohot",
+  "thoda",
+  "zyada",
+  "abhi",
+  "pehle",
+  "baad",
+  "kyun",
+  "kaise",
+  "kaisa",
+  "kitna",
+  "kitni",
+  "woh",
+  "yeh",
+  "ye",
+  "wo",
+  "uska",
+  "iska",
+  "sakte",
+  "sakta",
+  "sakti",
+  "karo",
+  "kiya",
+  "kiye",
+  "karna",
+  "batao",
+  "dikha",
+  "dikhao",
+  "lena",
+  "dena",
+  "kuch",
+  "kaafi",
+  "zaroor",
+  "matlab",
+  "hua",
+  "hui",
+  "hue",
+  "tha",
+  "thi",
+  "hoti",
+  "hota",
+  "hote",
+  "mein",
+  "se",
+  "ko",
+  "ka",
+  "ki",
+  "ke",
+  "pe",
+  "aur",
+  "bhi",
+  "na",
+  "ne",
+  "jo",
+  "jab",
+  "tab",
+  "sthiti",
+  "darshit",
+  "jaankari",
+  "madad",
+  "order",
+  "kar",
+  "krna",
+  "bata",
+  "dekh",
+  "dikh",
+  "chaho",
+  "chahte",
+  "karte",
+]);
