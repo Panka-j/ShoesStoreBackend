@@ -70,7 +70,7 @@ async function fetchAndCompress(url) {
 const stats = { processed: 0, skipped: 0, failed: 0 };
 
 try {
-  await mongoose.connect(`${process.env.MONGODB_URL}/CrossCanals`);
+  await mongoose.connect(`${process.env.MONGODB_URL}/ShoeStore`);
   console.log("✓ Connected to MongoDB\n");
 
   const products = await Product.find({});

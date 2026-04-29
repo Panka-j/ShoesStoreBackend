@@ -19,18 +19,15 @@ import Image from "../src/models/imageModel.js";
 
 dotenv.config({ path: "./.env" });
 
-await mongoose.connect(`${process.env.MONGODB_URL}/CrossCanals`);
+await mongoose.connect(`${process.env.MONGODB_URL}/ShoeStore`);
 console.log("✓ Connected to MongoDB");
 
 // ─── 1. IMAGES ───────────────────────────────────────────────────────────────
 
 const imageDefs = [
   { fileName: "avatar-admin.jpg", mimeType: "image/jpeg" },
-  { fileName: "avatar-seller1.jpg", mimeType: "image/jpeg" },
-  { fileName: "avatar-seller2.jpg", mimeType: "image/jpeg" },
-  { fileName: "avatar-seller3.jpg", mimeType: "image/jpeg" },
-  { fileName: "avatar-buyer1.jpg", mimeType: "image/jpeg" },
-  { fileName: "avatar-buyer2.jpg", mimeType: "image/jpeg" },
+  { fileName: "avatar-pankaj.jpg", mimeType: "image/jpeg" },
+  { fileName: "avatar-jiveetesh.jpg", mimeType: "image/jpeg" },
 ];
 
 const syntheticBuffer = Buffer.from([
@@ -72,121 +69,34 @@ const userDefs = [
     avatar: images[0]._id,
   },
   {
-    firstName: "Arjun",
-    lastName: "Mehta",
-    email: "seller1@shoes.com",
+    firstName: "Pankaj",
+    lastName: "Prajapati",
+    email: "pankaj@gmail.com",
     role: "seller",
-    phone: "9111111111",
+    phone: "1234567890",
     address: {
-      street: "22 Linking Road",
-      city: "Mumbai",
-      state: "Maharashtra",
-      zipCode: "400050",
+      street: "12 GWagon Road",
+      city: "Bhopal",
+      state: "Madhya Pradesh",
+      zipCode: "462044",
       country: "India",
     },
     avatar: images[1]._id,
   },
   {
-    firstName: "Priya",
-    lastName: "Sharma",
-    email: "seller2@shoes.com",
-    role: "seller",
-    phone: "9222222222",
+    firstName: "Jiveetesh",
+    lastName: "Mourya",
+    email: "jiveetesh@gmail.com",
+    role: "buyer",
+    phone: "9876543210",
     address: {
-      street: "14 MG Road",
-      city: "Bengaluru",
-      state: "Karnataka",
-      zipCode: "560001",
+      street: "12 GWagon Road",
+      city: "Bhopal",
+      state: "Madhya Pradesh",
+      zipCode: "462044",
       country: "India",
     },
     avatar: images[2]._id,
-  },
-  {
-    firstName: "Rohan",
-    lastName: "Verma",
-    email: "seller3@shoes.com",
-    role: "seller",
-    phone: "9333333333",
-    address: {
-      street: "5 Connaught Place",
-      city: "New Delhi",
-      state: "Delhi",
-      zipCode: "110001",
-      country: "India",
-    },
-    avatar: images[3]._id,
-  },
-  {
-    firstName: "Neha",
-    lastName: "Kapoor",
-    email: "buyer1@shoes.com",
-    role: "buyer",
-    phone: "9444444444",
-    address: {
-      street: "88 Jubilee Hills",
-      city: "Hyderabad",
-      state: "Telangana",
-      zipCode: "500033",
-      country: "India",
-    },
-    avatar: images[4]._id,
-  },
-  {
-    firstName: "Karan",
-    lastName: "Singh",
-    email: "buyer2@shoes.com",
-    role: "buyer",
-    phone: "9555555555",
-    address: {
-      street: "12 Anna Salai",
-      city: "Chennai",
-      state: "Tamil Nadu",
-      zipCode: "600002",
-      country: "India",
-    },
-    avatar: images[5]._id,
-  },
-  {
-    firstName: "Anjali",
-    lastName: "Patel",
-    email: "buyer3@shoes.com",
-    role: "buyer",
-    phone: "9666666666",
-    address: {
-      street: "3 Park Street",
-      city: "Kolkata",
-      state: "West Bengal",
-      zipCode: "700016",
-      country: "India",
-    },
-  },
-  {
-    firstName: "Vikram",
-    lastName: "Nair",
-    email: "buyer4@shoes.com",
-    role: "buyer",
-    phone: "9777777777",
-    address: {
-      street: "45 FC Road",
-      city: "Pune",
-      state: "Maharashtra",
-      zipCode: "411005",
-      country: "India",
-    },
-  },
-  {
-    firstName: "Sneha",
-    lastName: "Reddy",
-    email: "buyer5@shoes.com",
-    role: "buyer",
-    phone: "9888888888",
-    address: {
-      street: "7 Civil Lines",
-      city: "Jaipur",
-      state: "Rajasthan",
-      zipCode: "302006",
-      country: "India",
-    },
   },
 ];
 
@@ -203,14 +113,8 @@ for (const def of userDefs) {
 }
 console.log(`✓ Users: ${Object.keys(users).length}`);
 
-const seller1 = users["seller1@shoes.com"];
-const seller2 = users["seller2@shoes.com"];
-const seller3 = users["seller3@shoes.com"];
-const buyer1 = users["buyer1@shoes.com"];
-const buyer2 = users["buyer2@shoes.com"];
-const buyer3 = users["buyer3@shoes.com"];
-const buyer4 = users["buyer4@shoes.com"];
-const buyer5 = users["buyer5@shoes.com"];
+const pankaj = users["pankaj@gmail.com"];
+const jiveetesh = users["jiveetesh@gmail.com"];
 
 // ─── 3. CATEGORIES ────────────────────────────────────────────────────────────
 
@@ -255,17 +159,16 @@ for (const def of categoryDefs) {
 console.log(`✓ Categories: ${Object.keys(categories).length}`);
 
 // ─── 4. PRODUCTS ──────────────────────────────────────────────────────────────
-// All prices in INR
+// All prices in INR — all under Pankaj Prajapati
 
 const productDefs = [
-  // ── seller1 (Arjun Mehta) ──
   {
     name: "AeroStride Pro",
     description:
       "Lightweight running shoe with superior cushioning and breathable mesh upper ideal for long-distance road running.",
     brand: "AeroStride",
     category: categories["Running"]._id,
-    seller: seller1._id,
+    seller: pankaj._id,
     basePrice: 5499,
     sizeVariants: [
       { size: 6, stock: 8, price: 5299 },
@@ -283,7 +186,7 @@ const productDefs = [
       "Premium training shoe engineered for speed workouts with a responsive foam midsole and snug lace-up fit.",
     brand: "CloudWalk",
     category: categories["Running"]._id,
-    seller: seller1._id,
+    seller: pankaj._id,
     basePrice: 7299,
     sizeVariants: [
       { size: 6, stock: 5, price: 6999 },
@@ -301,7 +204,7 @@ const productDefs = [
       "Timeless canvas sneaker with a vulcanised rubber sole and padded collar for relaxed everyday use.",
     brand: "UrbanStep",
     category: categories["Casual"]._id,
-    seller: seller1._id,
+    seller: pankaj._id,
     basePrice: 2199,
     sizeVariants: [
       { size: 6, stock: 20, price: 1999 },
@@ -319,7 +222,7 @@ const productDefs = [
       "Rugged trekking boot with waterproof suede upper, Vibram outsole, and ankle support for mountain trails.",
     brand: "HikeMaster",
     category: categories["Boots"]._id,
-    seller: seller1._id,
+    seller: pankaj._id,
     basePrice: 9999,
     sizeVariants: [
       { size: 6, stock: 4, price: 9799 },
@@ -331,15 +234,13 @@ const productDefs = [
     ],
     tags: ["boots", "trekking", "waterproof", "vibram"],
   },
-
-  // ── seller2 (Priya Sharma) ──
   {
     name: "Executive Oxford",
     description:
       "Handcrafted Derby oxford with full-grain leather upper, leather lining, and blake-stitched leather sole.",
     brand: "LexCraft",
     category: categories["Formal"]._id,
-    seller: seller2._id,
+    seller: pankaj._id,
     basePrice: 11999,
     sizeVariants: [
       { size: 6, stock: 5, price: 11499 },
@@ -357,7 +258,7 @@ const productDefs = [
       "Slim-profile monk-strap brogue in tan calfskin with perforated detailing and memory-foam insole.",
     brand: "LexCraft",
     category: categories["Formal"]._id,
-    seller: seller2._id,
+    seller: pankaj._id,
     basePrice: 9499,
     sizeVariants: [
       { size: 6, stock: 4, price: 9199 },
@@ -375,7 +276,7 @@ const productDefs = [
       "High-traction court sports shoe with lateral ankle support and herringbone rubber outsole for all court surfaces.",
     brand: "PowerFlex",
     category: categories["Sports"]._id,
-    seller: seller2._id,
+    seller: pankaj._id,
     basePrice: 5999,
     sizeVariants: [
       { size: 6, stock: 10, price: 5799 },
@@ -393,7 +294,7 @@ const productDefs = [
       "Water-resistant EVA sandal with adjustable double-strap system and contoured footbed for all-day beach comfort.",
     brand: "TideStep",
     category: categories["Sandals"]._id,
-    seller: seller2._id,
+    seller: pankaj._id,
     basePrice: 1299,
     sizeVariants: [
       { size: 6, stock: 25, price: 1199 },
@@ -405,14 +306,13 @@ const productDefs = [
     ],
     tags: ["sandals", "beach", "EVA", "water-resistant"],
   },
-
   {
     name: "NightRun Reflex",
     description:
       "Reflective night-running shoe with 360° reflectivity strips, glow-in-dark heel tab, and energy-return foam.",
     brand: "AeroStride",
     category: categories["Running"]._id,
-    seller: seller1._id,
+    seller: pankaj._id,
     basePrice: 6799,
     sizeVariants: [
       { size: 6, stock: 6, price: 6599 },
@@ -430,7 +330,7 @@ const productDefs = [
       "Low-top lifestyle sneaker with suede toe cap, contrast stitching, and cupsole construction for street style.",
     brand: "UrbanStep",
     category: categories["Casual"]._id,
-    seller: seller1._id,
+    seller: pankaj._id,
     basePrice: 3499,
     sizeVariants: [
       { size: 6, stock: 18, price: 3299 },
@@ -448,7 +348,7 @@ const productDefs = [
       "Mountain bike flat pedal shoe with stiff nylon shank, micro-lug rubber outsole, and reinforced toe box.",
     brand: "HikeMaster",
     category: categories["Sports"]._id,
-    seller: seller1._id,
+    seller: pankaj._id,
     basePrice: 8499,
     sizeVariants: [
       { size: 6, stock: 4, price: 8199 },
@@ -466,7 +366,7 @@ const productDefs = [
       "Camouflage-print ankle boot with oil-resistant rubber outsole and steel-shank midsole for outdoor work.",
     brand: "HikeMaster",
     category: categories["Boots"]._id,
-    seller: seller1._id,
+    seller: pankaj._id,
     basePrice: 11499,
     sizeVariants: [
       { size: 6, stock: 3, price: 11199 },
@@ -478,15 +378,13 @@ const productDefs = [
     ],
     tags: ["boots", "outdoor", "camo", "oil-resistant"],
   },
-
-  // ── seller2 (Priya Sharma) ──
   {
     name: "VelvetLoafer Classic",
     description:
       "Penny loafer in burnished calfskin with leather-lined interior and hand-sewn moccasin toe for smart-casual wear.",
     brand: "LexCraft",
     category: categories["Formal"]._id,
-    seller: seller2._id,
+    seller: pankaj._id,
     basePrice: 8299,
     sizeVariants: [
       { size: 6, stock: 6, price: 7999 },
@@ -504,7 +402,7 @@ const productDefs = [
       "Carbon-fibre-plated sprint racing flat with sock-like Flyknit upper and aggressive forefoot rocker geometry.",
     brand: "CloudWalk",
     category: categories["Running"]._id,
-    seller: seller2._id,
+    seller: pankaj._id,
     basePrice: 14999,
     sizeVariants: [
       { size: 6, stock: 3, price: 14499 },
@@ -522,7 +420,7 @@ const productDefs = [
       "Quick-dry river sandal with drainage ports, adjustable webbing straps, and sticky rubber outsole for wet rocks.",
     brand: "TideStep",
     category: categories["Sandals"]._id,
-    seller: seller2._id,
+    seller: pankaj._id,
     basePrice: 1899,
     sizeVariants: [
       { size: 6, stock: 20, price: 1799 },
@@ -540,7 +438,7 @@ const productDefs = [
       "Non-marking gum-rubber indoor football shoe with close-fitting last, herringbone sole, and padded ankle collar.",
     brand: "PowerFlex",
     category: categories["Sports"]._id,
-    seller: seller2._id,
+    seller: pankaj._id,
     basePrice: 3999,
     sizeVariants: [
       { size: 6, stock: 12, price: 3799 },
@@ -552,15 +450,13 @@ const productDefs = [
     ],
     tags: ["sports", "futsal", "indoor", "football"],
   },
-
-  // ── seller3 (Rohan Verma) ──
   {
     name: "SlipOn Breeze",
     description:
       "Zero-effort slip-on sneaker with elastic gore panels, memory-foam insole, and breathable knit upper.",
     brand: "UrbanStep",
     category: categories["Casual"]._id,
-    seller: seller3._id,
+    seller: pankaj._id,
     basePrice: 3299,
     sizeVariants: [
       { size: 6, stock: 22, price: 3099 },
@@ -578,7 +474,7 @@ const productDefs = [
       "Cross-training gym shoe with multi-directional flex grooves, wide toe box, and anti-slip gum outsole.",
     brand: "PowerFlex",
     category: categories["Sports"]._id,
-    seller: seller3._id,
+    seller: pankaj._id,
     basePrice: 4799,
     sizeVariants: [
       { size: 6, stock: 12, price: 4599 },
@@ -596,7 +492,7 @@ const productDefs = [
       "Insulated Chelsea boot with faux-shearling lining, side zip, and lug sole for cold-weather urban commutes.",
     brand: "HikeMaster",
     category: categories["Boots"]._id,
-    seller: seller3._id,
+    seller: pankaj._id,
     basePrice: 7799,
     sizeVariants: [
       { size: 6, stock: 6, price: 7499 },
@@ -614,7 +510,7 @@ const productDefs = [
       "Arch-support sport sandal with Velcro straps, cork-latex footbed, and grippy rubber outsole for active outings.",
     brand: "TideStep",
     category: categories["Sandals"]._id,
-    seller: seller3._id,
+    seller: pankaj._id,
     basePrice: 2499,
     sizeVariants: [
       { size: 6, stock: 18, price: 2299 },
@@ -632,7 +528,7 @@ const productDefs = [
       "Chunky retro running silhouette with two-tone mesh panels, oversized midsole, and vintage branding for streetwear.",
     brand: "AeroStride",
     category: categories["Casual"]._id,
-    seller: seller3._id,
+    seller: pankaj._id,
     basePrice: 4299,
     sizeVariants: [
       { size: 6, stock: 14, price: 3999 },
@@ -650,7 +546,7 @@ const productDefs = [
       "Full-grain leather cricket shoe with reinforced toe guard, spike-ready outsole, and lateral heel stabiliser.",
     brand: "PowerFlex",
     category: categories["Sports"]._id,
-    seller: seller3._id,
+    seller: pankaj._id,
     basePrice: 6499,
     sizeVariants: [
       { size: 6, stock: 8, price: 6299 },
@@ -668,7 +564,7 @@ const productDefs = [
       "Chukka-height desert boot in oiled nubuck with crepe rubber sole and brass eyelet lacing for relaxed style.",
     brand: "HikeMaster",
     category: categories["Boots"]._id,
-    seller: seller3._id,
+    seller: pankaj._id,
     basePrice: 5799,
     sizeVariants: [
       { size: 6, stock: 7, price: 5599 },
@@ -686,7 +582,7 @@ const productDefs = [
       "Ergonomic daily-use flip-flop with anatomical arch support, anti-bacterial top-cover, and non-slip outsole.",
     brand: "TideStep",
     category: categories["Sandals"]._id,
-    seller: seller3._id,
+    seller: pankaj._id,
     basePrice: 799,
     sizeVariants: [
       { size: 6, stock: 40, price: 749 },
@@ -716,235 +612,196 @@ const [
   aeroStride,
   cloudWalk,
   urbanStep,
-  hikeMaster, // seller1 originals
+  hikeMaster,
   execOxford,
   slimMonk,
   powerFlex,
-  beachWalk, // seller2 originals
+  beachWalk,
   nightRun,
   streetKick,
   dirtKing,
-  camoField, // seller1 new
+  camoField,
   velvetLoafer,
   sprintX,
   aquaSlide,
-  futsalBlast, // seller2 new
+  futsalBlast,
   slipOn,
   gymPulse,
   winterBoot,
-  sunTrek, // seller3 originals
+  sunTrek,
   retroRunner,
   cricketStud,
   desertBoot,
-  flipComfort, // seller3 new
+  flipComfort,
 ] = products;
 
 console.log(`✓ Products: ${products.length}`);
 
 // ─── 5. ORDERS ────────────────────────────────────────────────────────────────
 
-const addr = {
-  neha: {
-    street: "88 Jubilee Hills",
-    city: "Hyderabad",
-    state: "Telangana",
-    zipCode: "500033",
-    country: "India",
-  },
-  karan: {
-    street: "12 Anna Salai",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    zipCode: "600002",
-    country: "India",
-  },
-  anjali: {
-    street: "3 Park Street",
-    city: "Kolkata",
-    state: "West Bengal",
-    zipCode: "700016",
-    country: "India",
-  },
-  vikram: {
-    street: "45 FC Road",
-    city: "Pune",
-    state: "Maharashtra",
-    zipCode: "411005",
-    country: "India",
-  },
-  sneha: {
-    street: "7 Civil Lines",
-    city: "Jaipur",
-    state: "Rajasthan",
-    zipCode: "302006",
-    country: "India",
-  },
+const jiveeteshAddr = {
+  street: "12 GWagon Road",
+  city: "Bhopal",
+  state: "Madhya Pradesh",
+  zipCode: "462044",
+  country: "India",
 };
 
 const orderDefs = [
-  // buyer1 (Neha)
   {
-    buyer: buyer1._id,
-    seller: aeroStride.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: aeroStride._id,
     size: 7,
     quantity: 1,
     unitPrice: 5299,
     totalPrice: 5299,
-    shippingAddress: addr.neha,
+    shippingAddress: jiveeteshAddr,
     status: "delivered",
   },
   {
-    buyer: buyer1._id,
-    seller: execOxford.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: execOxford._id,
     size: 8,
     quantity: 1,
     unitPrice: 11999,
     totalPrice: 11999,
-    shippingAddress: addr.neha,
+    shippingAddress: jiveeteshAddr,
     status: "confirmed",
   },
   {
-    buyer: buyer1._id,
-    seller: beachWalk.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: beachWalk._id,
     size: 7,
     quantity: 2,
     unitPrice: 1199,
     totalPrice: 2398,
-    shippingAddress: addr.neha,
+    shippingAddress: jiveeteshAddr,
     status: "delivered",
   },
-
-  // buyer2 (Karan)
   {
-    buyer: buyer2._id,
-    seller: cloudWalk.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: cloudWalk._id,
     size: 9,
     quantity: 1,
     unitPrice: 7299,
     totalPrice: 7299,
-    shippingAddress: addr.karan,
+    shippingAddress: jiveeteshAddr,
     status: "shipped",
   },
   {
-    buyer: buyer2._id,
-    seller: powerFlex.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: powerFlex._id,
     size: 8,
     quantity: 1,
     unitPrice: 5999,
     totalPrice: 5999,
-    shippingAddress: addr.karan,
+    shippingAddress: jiveeteshAddr,
     status: "delivered",
   },
   {
-    buyer: buyer2._id,
-    seller: slimMonk.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: slimMonk._id,
     size: 9,
     quantity: 1,
     unitPrice: 9499,
     totalPrice: 9499,
-    shippingAddress: addr.karan,
+    shippingAddress: jiveeteshAddr,
     status: "processing",
   },
-
-  // buyer3 (Anjali)
   {
-    buyer: buyer3._id,
-    seller: urbanStep.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: urbanStep._id,
     size: 6,
     quantity: 2,
     unitPrice: 1999,
     totalPrice: 3998,
-    shippingAddress: addr.anjali,
+    shippingAddress: jiveeteshAddr,
     status: "pending",
   },
   {
-    buyer: buyer3._id,
-    seller: slipOn.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: slipOn._id,
     size: 7,
     quantity: 1,
     unitPrice: 3099,
     totalPrice: 3099,
-    shippingAddress: addr.anjali,
+    shippingAddress: jiveeteshAddr,
     status: "delivered",
   },
   {
-    buyer: buyer3._id,
-    seller: sunTrek.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: sunTrek._id,
     size: 6,
     quantity: 1,
     unitPrice: 2299,
     totalPrice: 2299,
-    shippingAddress: addr.anjali,
+    shippingAddress: jiveeteshAddr,
     status: "out_for_delivery",
   },
-
-  // buyer4 (Vikram)
   {
-    buyer: buyer4._id,
-    seller: hikeMaster.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: hikeMaster._id,
     size: 10,
     quantity: 1,
     unitPrice: 10299,
     totalPrice: 10299,
-    shippingAddress: addr.vikram,
+    shippingAddress: jiveeteshAddr,
     status: "confirmed",
   },
   {
-    buyer: buyer4._id,
-    seller: gymPulse.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: gymPulse._id,
     size: 9,
     quantity: 1,
     unitPrice: 4799,
     totalPrice: 4799,
-    shippingAddress: addr.vikram,
+    shippingAddress: jiveeteshAddr,
     status: "delivered",
   },
   {
-    buyer: buyer4._id,
-    seller: winterBoot.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: winterBoot._id,
     size: 10,
     quantity: 1,
     unitPrice: 7799,
     totalPrice: 7799,
-    shippingAddress: addr.vikram,
+    shippingAddress: jiveeteshAddr,
     status: "cancelled",
     cancelReason: "Ordered the wrong size by mistake.",
     cancelledBy: "buyer",
   },
-
-  // buyer5 (Sneha)
   {
-    buyer: buyer5._id,
-    seller: aeroStride.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: aeroStride._id,
     size: 6,
     quantity: 1,
     unitPrice: 5299,
     totalPrice: 5299,
-    shippingAddress: addr.sneha,
+    shippingAddress: jiveeteshAddr,
     status: "delivered",
   },
   {
-    buyer: buyer5._id,
-    seller: execOxford.seller,
+    buyer: jiveetesh._id,
+    seller: pankaj._id,
     product: execOxford._id,
     size: 7,
     quantity: 1,
     unitPrice: 11499,
     totalPrice: 11499,
-    shippingAddress: addr.sneha,
+    shippingAddress: jiveeteshAddr,
     status: "pending",
   },
 ];
@@ -958,7 +815,7 @@ for (const def of orderDefs) {
   if (!existing) {
     await Order.create(def);
     console.log(
-      `  ✓ Order: buyer=${def.buyer} product=${def.product} size=${def.size} ₹${def.totalPrice} [${def.status}]`
+      `  ✓ Order: product=${def.product} size=${def.size} ₹${def.totalPrice} [${def.status}]`
     );
   } else {
     console.log(`  · Order already exists (buyer/product/size)`);
@@ -969,95 +826,86 @@ console.log(`✓ Orders done`);
 // ─── 6. REVIEWS ───────────────────────────────────────────────────────────────
 
 const reviewDefs = [
-  // buyer1 (Neha)
   {
     product: aeroStride._id,
-    buyer: buyer1._id,
+    buyer: jiveetesh._id,
     rating: 5,
     comment:
       "Incredibly lightweight! My pace improved noticeably during my morning 10k. The mesh breathes really well.",
   },
   {
     product: execOxford._id,
-    buyer: buyer1._id,
+    buyer: jiveetesh._id,
     rating: 4,
     comment:
       "Stunning craftsmanship. Needed a week to break in but now they are the most comfortable formal shoes I own.",
   },
   {
     product: beachWalk._id,
-    buyer: buyer1._id,
+    buyer: jiveetesh._id,
     rating: 5,
     comment:
       "Perfect for Goa! Dried quickly after getting wet and the straps held firmly all day.",
   },
-
-  // buyer2 (Karan)
   {
     product: cloudWalk._id,
-    buyer: buyer2._id,
+    buyer: jiveetesh._id,
     rating: 5,
     comment:
       "The responsive midsole is a game-changer for my track sessions. Highly recommend to any serious runner.",
   },
   {
     product: powerFlex._id,
-    buyer: buyer2._id,
+    buyer: jiveetesh._id,
     rating: 4,
     comment:
       "Excellent court grip and the ankle support saved me on a couple of sharp cuts. Slightly narrow toe box.",
   },
   {
     product: slimMonk._id,
-    buyer: buyer2._id,
+    buyer: jiveetesh._id,
     rating: 3,
     comment:
       "Good quality leather but the tan shade is darker than the photos. Still wearable for office use.",
   },
-
-  // buyer3 (Anjali)
   {
     product: urbanStep._id,
-    buyer: buyer3._id,
+    buyer: jiveetesh._id,
     rating: 4,
     comment:
       "Cute design, true to size, and very comfortable for college all day. Great value for money.",
   },
   {
     product: slipOn._id,
-    buyer: buyer3._id,
+    buyer: jiveetesh._id,
     rating: 5,
     comment:
       "I bought two pairs. The memory foam is incredibly soft and slipping them on every morning is such a joy.",
   },
   {
     product: sunTrek._id,
-    buyer: buyer3._id,
+    buyer: jiveetesh._id,
     rating: 4,
     comment:
       "Good arch support for long walks. The cork footbed moulds to your foot after a few days.",
   },
-
-  // buyer4 (Vikram)
   {
     product: gymPulse._id,
-    buyer: buyer4._id,
+    buyer: jiveetesh._id,
     rating: 5,
     comment:
       "Handles squats, deadlifts, and HIIT without slipping. The wide toe box is a blessing for deadlifts.",
   },
-
-  // buyer5 (Sneha)
   {
     product: hikeMaster._id,
-    buyer: buyer5._id,
+    buyer: jiveetesh._id,
     rating: 5,
     comment:
       "Wore these on a 3-day Himachal trek — not a single blister! Waterproofing held up through stream crossings.",
   },
   {
     product: winterBoot._id,
-    buyer: buyer5._id,
+    buyer: jiveetesh._id,
     rating: 4,
     comment:
       "Super warm and the side zip makes them easy to pull on. The lug sole is solid on wet pavements.",
@@ -1071,9 +919,7 @@ for (const def of reviewDefs) {
   });
   if (!existing) {
     await Review.create(def);
-    console.log(
-      `  ✓ Review: product=${def.product} buyer=${def.buyer} ★${def.rating}`
-    );
+    console.log(`  ✓ Review: product=${def.product} ★${def.rating}`);
   } else {
     console.log(`  · Review already exists (product/buyer)`);
   }
@@ -1100,12 +946,6 @@ console.log(`✓ Product ratings updated`);
 await mongoose.disconnect();
 console.log("\n✓ Seed complete. Disconnected from MongoDB.");
 console.log(`\nAll seed accounts use password: ${PASSWORD_PLAIN}`);
-console.log("  admin@shoes.com    (admin)");
-console.log("  seller1@shoes.com  (seller — Arjun Mehta)");
-console.log("  seller2@shoes.com  (seller — Priya Sharma)");
-console.log("  seller3@shoes.com  (seller — Rohan Verma)");
-console.log("  buyer1@shoes.com   (buyer  — Neha Kapoor)");
-console.log("  buyer2@shoes.com   (buyer  — Karan Singh)");
-console.log("  buyer3@shoes.com   (buyer  — Anjali Patel)");
-console.log("  buyer4@shoes.com   (buyer  — Vikram Nair)");
-console.log("  buyer5@shoes.com   (buyer  — Sneha Reddy)");
+console.log("  admin@shoes.com      (admin)");
+console.log("  pankaj@gmail.com     (seller — Pankaj Prajapati)");
+console.log("  jiveetesh@gmail.com  (buyer  — Jiveetesh Mourya)");
