@@ -117,3 +117,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# LangChain / FAISS persisted vector store (auto-generated, not committed)
+vector-store/
